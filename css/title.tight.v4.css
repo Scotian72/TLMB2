@@ -1,0 +1,16 @@
+/* Title tight v4 — collapse top/bottom whitespace & keep hero centered */
+#header, .app-header { padding-top: 6px !important; padding-bottom: 6px !important; min-height: 0 !important; }
+#main-content, .content, .page, .wrapper, .container { padding-top: 4px !important; margin-top: 0 !important; }
+.title-screen {
+  display: flex !important; flex-direction: column !important;
+  align-items: center !important; justify-content: flex-start !important;
+  gap: 8px !important; min-height: 0 !important; height: auto !important;
+  padding-top: 0 !important; margin-top: 0 !important; padding-bottom: 0 !important; margin-bottom: 0 !important;
+}
+.title-screen > *:first-child { margin-top: 0 !important; }
+.title-hero { padding: 0 !important; margin: 0 !important; text-align: center !important; }
+.title-hero .title-logo { display: inline-block !important; margin: 2px 0 4px 0 !important; }
+.title-hero .title-heading { margin: 0 0 4px 0 !important; }
+.title-hero .title-tagline { margin: 0 0 6px 0 !important; }
+.title-form { margin-top: 6px !important; }
+.title-form .form-section { margin-bottom: 12px !important; }
