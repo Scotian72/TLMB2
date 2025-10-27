@@ -1,72 +1,57 @@
 
-;(function(){ 'use strict';
-  // Forecheck tweak helpers
-  var _cfg = (window.TallyLax&&window.TallyLax.GameState&&window.TallyLax.GameState.config)||{};
-  var _fore = _cfg.forecheck || 'Standard';
-  function _tweakShots(x){ return Math.round(x * (_fore==='Aggressive'?1.03:(_fore==='Conservative'?0.98:1.00))); }
-  function _tweakTurnovers(x){ return Math.round(x * (_fore==='Aggressive'?1.02:(_fore==='Conservative'?0.98:1.00))); }
-  var TL=window.TallyLax=window.TallyLax||{};
-  TL.GameSimulator = {
-    simulateGame:function(g){
-      var home = TL.OpponentManager.ensureRoster(g.homeOrg, g.division, g.teamLevel);
-      var away = TL.OpponentManager.ensureRoster(g.awayOrg, g.division, g.teamLevel);
-      function makeLineup(org,div,lvl, roster){
-        var runners=roster.filter(function(p){return p.position!=='Goalie';});
-        var mode = (TL.GameState.lines && TL.GameState.lines.mode) || 'Alternate';
-        var startId = TL.GoalieManager.pickStarter(org,div,lvl, mode);
-        var gk = roster.find(function(p){return p.id===startId;}) || roster.find(function(p){return p.position==='Goalie';}) || {name:'Emergency G', ovr:50, id:'g_x'};
-        return { runners:runners.slice(0,10), goalie:gk };
-      }
-      var LUh = makeLineup(g.homeOrg, g.division, g.teamLevel, home), LUa = makeLineup(g.awayOrg, g.division, g.teamLevel, away);
-      function simShots(str){ var base = 30 + Math.round((str-50)/2) + Math.floor((TL.RNG.rand()-0.5)*8); return Math.max(18, Math.min(55, base)); }
-      var sh = simShots(48), sa = simShots(48);
-      var saveHome = 0.6 + (LUh.goalie.ovr-50)/200, saveAway= 0.6 + (LUa.goalie.ovr-50)/200;
-      var gh = Math.max(0, Math.round(sh*(1-saveAway)*0.55) + TL.RNG.int(0,3));
-      var ga = Math.max(0, Math.round(sa*(1-saveHome)*0.55) + TL.RNG.int(0,3));
-      function distrib(runners, goals, shots){
-        var list=[], i;
-        for(i=0;i<shots;i++){ var s=TL.RNG.pick(runners); s.gameStats=s.gameStats||{}; s.gameStats.S=(s.gameStats.S||0)+1;
-          s.gameStats.GB=(s.gameStats.GB||0) + (TL.RNG.int(0,4)==0?1:0);
-          s.gameStats.CTO=(s.gameStats.CTO||0) + (TL.RNG.int(0,12)==0?1:0);
-          s.gameStats.BLK=(s.gameStats.BLK||0) + (TL.RNG.int(0,14)==0?1:0);
-          s.gameStats.TO=(s.gameStats.TO||0) + (TL.RNG.int(0,10)==0?1:0);
-        }
-        for(i=0;i<goals;i++){ var shooter=TL.RNG.pick(runners), assist=TL.RNG.pick(runners); if(assist.id===shooter.id) assist=null;
-          shooter.gameStats.G=(shooter.gameStats.G||0)+1; if(assist){ assist.gameStats.A=(assist.gameStats.A||0)+1; }
-          list.push({ pid: shooter.id, G:1, A: assist?1:0, S:TL.RNG.int(1,7), GB:0, CTO:0, PIM:0 });
-        }
-        // faceoffs
-        var taker=TL.RNG.pick(runners), FO=TL.RNG.int(10,40), FOW=TL.RNG.int(int(FO*0.35), int(FO*0.65));
-        taker.gameStats.FO=(taker.gameStats.FO||0)+FO; taker.gameStats.FOW=(taker.gameStats.FOW||0)+FOW;
-        runners.forEach(function(p){
-          p.seasonStats=p.seasonStats||{GP:0}; p.seasonStats.GP+=1;
-          for(var k in p.gameStats){ p.seasonStats[k]=(p.seasonStats[k]||0)+p.gameStats[k]; }
-          p.gameStats={};
-        });
-        return list;
-      }
-      var boxH = distrib(LUh.runners, gh, sh), boxA=distrib(LUa.runners, ga, sa);
-      var sva = (sh>0)? (sh - ga)/sh : 1.0, svh = (sa>0)? (sa - gh)/sa : 1.0;
-      function goalieMarks(sa,ga){ var svpct = (sa>0)? (sa-ga)/sa : 1.0; return { QS: (svpct>=0.915 || ga<=2)?1:0, RBS: (ga>=5 && svpct<=0.850)?1:0 }; }
-      var gmH = goalieMarks(sa, gh), gmA=goalieMarks(sh, ga);
-      g.status='final'; g.result={home: gh, away: ga};
-      g.boxscore={
-        home:{goalie:LUh.goalie.id, players:boxH, team:{S:sh}, svpct:sva, SA:sh, GA:ga, QS:gmA.QS, RBS:gmA.RBS},
-        away:{goalie:LUa.goalie.id, players:boxA, team:{S:sa}, svpct:svh, SA:sa, GA:gh, QS:gmH.QS, RBS:gmH.RBS}
-      };
-      // season goalie booking
-      function book(roster, gid, SA, GA, QS, RBS){
-        var gk = roster.find(function(p){return p.id===gid;}); if(!gk) return;
-        gk.seasonGoalie = gk.seasonGoalie || {GP:0,GS:0,TOI:0,SA:0,SV:0,GA:0,SO:0,QS:0,RBS:0};
-        gk.seasonGoalie.GP += 1; gk.seasonGoalie.GS += 1;
-        gk.seasonGoalie.SA += SA; gk.seasonGoalie.GA += GA; gk.seasonGoalie.SV += Math.max(0, SA-GA);
-        gk.seasonGoalie.QS += QS; gk.seasonGoalie.RBS += RBS;
-      }
-      book(home, LUh.goalie.id, sh, ga, gmA.QS, gmA.RBS);
-      book(away, LUa.goalie.id, sa, gh, gmH.QS, gmH.RBS);
-      TL.GoalieManager.recordGA(g.homeOrg, g.division, g.teamLevel, LUh.goalie.id, ga);
-      TL.GoalieManager.recordGA(g.awayOrg, g.division, g.teamLevel, LUa.goalie.id, gh);
-      return g;
+
+// === Additive: Scrimmage Simulator ===
+(function(){
+  'use strict';
+  var TL = window.TL = window.TL || {};
+  TL.Modules = TL.Modules || {};
+  TL.Modules.GameSim = TL.Modules.GameSim || {};
+
+  function rndInt(min,max){
+    var r = (TL.RNG && TL.RNG.random) ? TL.RNG.random() : Math.random();
+    return Math.floor(r*(max-min+1))+min;
+  }
+
+  TL.Modules.GameSim.simulateScrimmage = function(game){
+    var GS = TL.GameState;
+    GS.results = GS.results || [];
+    GS.playerStats = GS.playerStats || {};
+    var homeId = game.homeId, awayId = game.awayId;
+
+    // Simple scoring model uses lines/overall
+    function teamScore(teamId){
+      var roster = (GS.rosters && GS.rosters[teamId]) || [];
+      var ov = roster.reduce(function(s,pid){ var pl=GS.players[pid]||{}; return s + (pl.overall||30); },0) / Math.max(1,roster.length);
+      var base = Math.round((ov-20)/5); // rough scale
+      return Math.max(3, rndInt(base, base+10));
     }
+
+    var homeScore = teamScore(homeId);
+    var awayScore = teamScore(awayId);
+
+    // assign simple per-player stats
+    function assignStats(teamId, goals){
+      var roster = (GS.rosters && GS.rosters[teamId]) || [];
+      if (roster.length === 0) return;
+      // random distribute goals to runners
+      var runners = roster.filter(function(pid){ return (GS.players[pid]||{}).pos !== 'G'; });
+      for (var g=0; g<goals; g++){
+        var scorer = runners[rndInt(0, Math.max(0, runners.length-1))] || roster[0];
+        var stat = (GS.playerStats[scorer] = GS.playerStats[scorer] || { g:0, a:0, s:0 });
+        stat.g += 1; stat.s += 1;
+      }
+      // goalie saves estimate
+      var goalie = roster.find(function(pid){ return (GS.players[pid]||{}).pos === 'G'; }) || roster[0];
+      var gst = (GS.playerStats[goalie] = GS.playerStats[goalie] || { g:0, a:0, s:0, sv:0 });
+      gst.sv = (gst.sv||0) + rndInt(5,20);
+    }
+
+    assignStats(homeId, homeScore);
+    assignStats(awayId, awayScore);
+
+    game.result = { home: homeScore, away: awayScore };
+    game.status = "completed";
+    GS.results.push(game);
+    return game;
   };
 })();

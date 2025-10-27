@@ -1,0 +1,238 @@
+/* css/components/_tables.css - Fixed for Dark Theme */
+
+/* ========================================
+   TABLES - DARK THEME COMPATIBLE
+   ======================================== */
+
+.table-container {
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card-bg, #2a2a2a);
+    color: var(--text-color, #ffffff);
+}
+
+th {
+    background: var(--primary-color, #00bcd4);
+    color: #ffffff !important;
+    padding: 0.75rem;
+    text-align: left;
+    font-weight: 600;
+}
+
+td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-color, #444);
+    color: var(--text-color, #ffffff) !important;
+}
+
+tr:hover {
+    background: rgba(0, 188, 212, 0.1);
+}
+
+.table-striped tbody tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* STATS TABLES */
+.stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    background: var(--card-bg, #2a2a2a);
+}
+
+.stats-table thead {
+    background: var(--primary-color, #00bcd4);
+}
+
+.stats-table th {
+    padding: 0.75rem 0.5rem;
+    text-align: left;
+    font-weight: 600;
+    white-space: nowrap;
+    color: #ffffff !important;
+}
+
+.stats-table td {
+    padding: 0.75rem 0.5rem;
+    border-bottom: 1px solid var(--border-color, #444);
+    color: var(--text-color, #ffffff) !important;
+}
+
+.stats-table tbody tr:hover {
+    background: rgba(0, 188, 212, 0.1);
+}
+
+.stats-table .player-name {
+    font-weight: 600;
+    color: var(--primary-color, #00bcd4) !important;
+    cursor: pointer;
+}
+
+.stats-table .player-name:hover {
+    text-decoration: underline;
+}
+
+/* LEAGUE STANDINGS - CRITICAL FIX */
+.standings-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card-bg, #2a2a2a);
+}
+
+.standings-table th {
+    background: var(--primary-color, #00bcd4);
+    color: #ffffff !important;
+    padding: 0.75rem;
+    text-align: left;
+    font-weight: 600;
+}
+
+.standings-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-color, #444);
+    color: #ffffff !important; /* CRITICAL FIX */
+    background: transparent;
+}
+
+.standings-table tr {
+    background: transparent;
+}
+
+.standings-table tr:hover {
+    background: rgba(0, 188, 212, 0.1);
+}
+
+.standings-table tr:hover td {
+    color: #ffffff !important;
+}
+
+.standings-table .team-name {
+    font-weight: 600;
+    color: #ffffff !important;
+}
+
+.standings-table .user-team,
+.standings-table tr.user-team {
+    background: rgba(76, 175, 80, 0.2) !important;
+    font-weight: 700;
+}
+
+.standings-table .user-team td,
+.standings-table tr.user-team td {
+    color: #ffffff !important;
+}
+
+.standings-table .positive {
+    color: #4caf50 !important;
+    font-weight: 600;
+}
+
+.standings-table .negative {
+    color: #f44336 !important;
+    font-weight: 600;
+}
+
+/* GAME RESULTS TABLES */
+.game-results-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card-bg, #2a2a2a);
+}
+
+.game-results-table th {
+    background: var(--primary-color, #00bcd4);
+    color: #ffffff !important;
+    padding: 0.75rem 0.5rem;
+    text-align: left;
+    font-weight: 600;
+}
+
+.game-results-table td {
+    padding: 0.75rem 0.5rem;
+    border-bottom: 1px solid var(--border-color, #444);
+    color: #ffffff !important;
+}
+
+.game-results-table tbody tr:hover {
+    background: rgba(0, 188, 212, 0.1);
+}
+
+/* LEADERS TABLES */
+.leaders-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card-bg, #2a2a2a);
+}
+
+.leaders-table th {
+    background: var(--primary-color, #00bcd4);
+    color: #ffffff !important;
+    padding: 0.75rem 0.5rem;
+    text-align: left;
+    font-weight: 600;
+}
+
+.leaders-table td {
+    padding: 0.75rem 0.5rem;
+    border-bottom: 1px solid var(--border-color, #444);
+    color: #ffffff !important;
+}
+
+.leaders-table tbody tr:hover {
+    background: rgba(0, 188, 212, 0.1);
+}
+
+.leader-rank {
+    font-weight: bold;
+    color: var(--primary-color, #00bcd4) !important;
+}
+
+.leader-name {
+    font-weight: 600;
+    color: #ffffff !important;
+}
+
+.leader-team {
+    color: #b0b0b0 !important;
+    font-size: 0.9rem;
+}
+
+.leader-stat {
+    font-weight: bold;
+    color: #ffffff !important;
+}
+
+/* NO DATA MESSAGE */
+.no-data {
+    color: var(--text-secondary, #b0b0b0);
+    font-style: italic;
+    padding: 2rem;
+    text-align: center;
+}
+
+/* ENSURE ALL TABLE TEXT IS VISIBLE */
+table * {
+    color: inherit;
+}
+
+table th * {
+    color: #ffffff !important;
+}
+
+table td * {
+    color: #ffffff !important;
+}
+
+/* Override any conflicting styles */
+.standings-table tbody tr td,
+.stats-table tbody tr td,
+.leaders-table tbody tr td,
+.game-results-table tbody tr td {
+    color: #ffffff !important;
+}

@@ -1,0 +1,39 @@
+/* ===== SAVE/LOAD UI ===== */
+
+.save-load-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    padding: 2rem;
+    max-width: 800px;
+}
+
+.save-section,
+.load-section {
+    background: var(--card-bg, #fff);
+    border: 2px solid var(--border-color, #e5e7eb);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+}
+
+.save-section h3,
+.load-section h3 {
+    margin: 0 0 1rem 0;
+    color: var(--primary-color, #0066cc);
+    font-size: 1.5rem;
+}
+
+.save-section p,
+.load-section p {
+    color: var(--text-secondary, #6b7280);
+    margin-bottom: 1.5rem;
+}
+
+.save-section button,
+.load-section button {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+}

@@ -1,318 +1,477 @@
-/* css/components/_training_camp.css */
+/* css/components/_training_camp.css - FIXED: White text for visibility */
 
-/* Training Camp Alert */
-.camp-alert-branded {
-    background: linear-gradient(135deg, var(--team-primary) 0%, var(--team-secondary) 100%);
-    color: white;
-    padding: 2rem;
-    border-radius: 12px;
+.training-camp-container {
+    padding: 1.5rem;
+    color: #ffffff;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.training-camp-header {
     text-align: center;
     margin-bottom: 2rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.camp-alert-branded h2 {
-    margin: 0 0 0.5rem 0;
-    font-size: 2rem;
-    font-weight: 700;
+.training-camp-header h2 {
+    color: #ffffff !important; /* FIXED: Make org name white */
+    margin-bottom: 0.5rem;
 }
 
-.camp-alert-branded p {
-    margin: 0;
-    font-size: 1.1rem;
-    opacity: 0.95;
+.camp-subtitle {
+    color: #ffffff !important; /* FIXED: Make subtitle white */
+    font-size: 1rem;
 }
 
-/* Player Card in Camp */
-.player-card-camp {
-    background: white;
-    border: 2px solid #e5e7eb;
-    border-radius: 8px;
-    padding: 1rem;
-    transition: all 0.2s;
-}
-
-.player-card-camp:hover {
-    border-color: var(--team-primary);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
-}
-
-/* Button Styles */
-.btn-primary {
-    background: var(--team-primary);
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.btn-primary:hover:not(:disabled) {
-    background: var(--team-secondary);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.btn-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.btn-secondary {
-    background: #e5e7eb;
-    color: #1e293b;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.btn-secondary:hover {
-    background: #d1d5db;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.btn-sm {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.875rem;
+.camp-warning {
+    background: rgba(255, 152, 0, 0.2);
+    border: 2px solid #ff9800;
     border-radius: 6px;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s;
+    padding: 1rem;
+    margin-top: 1rem;
+    color: #ff9800;
+    font-weight: bold;
+    text-align: center;
 }
 
-.btn-sm.btn-primary {
-    background: var(--team-primary);
-    color: white;
+.camp-division-selector {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
 }
 
-.btn-sm.btn-secondary {
-    background: #e5e7eb;
-    color: #1e293b;
-}
-
-.btn-sm:hover {
-    transform: scale(1.05);
-}
-
-/* Grid Layouts */
-.grid-4 {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+/* FIXED: Stats section with white text */
+.camp-stats {
+    display: flex;
+    justify-content: space-around;
+    background: #2a2a2a;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border: 1px solid #444;
+    flex-wrap: wrap;
     gap: 1rem;
 }
 
-/* Team Card for Title Screen */
-.team-card {
-    background: white;
-    border: 3px solid transparent;
-    border-radius: 12px;
-    padding: 1.5rem;
-    cursor: pointer;
-    transition: all 0.2s;
+.camp-stat {
     text-align: center;
-    position: relative;
+    color: #ffffff !important; /* FIXED: White text */
 }
 
-.team-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+.camp-stat strong {
+    color: #ffffff !important; /* FIXED: White labels */
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
 }
 
-.team-card.selected {
-    border-color: var(--team-primary);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+.camp-stat-value {
+    color: #00bcd4 !important;
+    font-size: 1.5rem;
+    font-weight: bold;
 }
 
-/* Card Component */
-.card {
-    background: white;
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.card h3 {
-    margin: 0 0 1rem 0;
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #1e293b;
-}
-
-/* Modal Overlay */
-#player-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
+/* Sort/Filter Controls */
+.camp-controls {
     display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #2a2a2a;
+    border-radius: 8px;
+    border: 1px solid #444;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.camp-controls > div {
+    display: flex;
+    gap: 0.5rem;
     align-items: center;
+    flex-wrap: wrap;
+}
+
+.camp-controls label {
+    color: #00bcd4;
+    margin-right: 0.5rem;
+    white-space: nowrap;
+}
+
+.camp-assignment-section {
+    background: #2a2a2a;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border: 1px solid #444;
+}
+
+.camp-assignment-section h3 {
+    color: #00bcd4;
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.camp-quick-actions {
+    display: flex;
+    gap: 1rem;
     justify-content: center;
-    z-index: 1000;
-    animation: fadeIn 0.2s;
+    flex-wrap: wrap;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+/* Two-column layout for A/B teams */
+.camp-teams-row {
+    display: flex;
+    flex-direction: row;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
 }
 
-/* Attribute Bars */
-.attribute-bar {
+.camp-team-column {
+    flex: 1;
+    background: #2a2a2a;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #444;
+    min-height: 200px;
+}
+
+.camp-team-column h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #00bcd4;
+}
+
+.team-a-header {
+    color: #4caf50;
+    border-bottom-color: #4caf50 !important;
+}
+
+.team-b-header {
+    color: #2196f3;
+    border-bottom-color: #2196f3 !important;
+}
+
+.team-unassigned-header {
+    color: #ff9800;
+    border-bottom-color: #ff9800 !important;
+}
+
+/* Unassigned section below A/B */
+.camp-unassigned-section {
+    background: #2a2a2a;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #444;
+}
+
+.camp-unassigned-section h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #ff9800;
+}
+
+/* Simple grid with no nesting */
+.camp-team-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 1rem !important;
+    width: 100% !important;
+}
+
+/* FIXED: Player cards - clickable and consistent */
+.camp-player-card {
+    background: #1a1a1a !important;
+    border: 2px solid #444 !important;
+    border-radius: 8px !important;
+    padding: 1rem !important;
+    cursor: pointer !important; /* FIXED: Show it's clickable */
+    transition: all 0.2s !important;
+    width: 100% !important;
+    height: 180px !important;
+    min-height: 180px !important;
+    max-height: 180px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+}
+
+.camp-player-card:hover {
+    background: #252525 !important;
+    border-color: #00bcd4 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(0, 188, 212, 0.3) !important;
+}
+
+.camp-player-name {
+    font-weight: bold !important;
+    font-size: 0.9rem !important;
+    color: #ffffff !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.camp-player-position {
+    font-size: 0.8rem !important;
+    color: #b0b0b0 !important;
+}
+
+.camp-player-ovr {
+    font-size: 1.2rem !important;
+    font-weight: bold !important;
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 4px !important;
+    display: inline-block !important;
+}
+
+.rating-high {
+    background: #4caf50 !important;
+    color: white !important;
+}
+
+.rating-good {
+    background: #2196f3 !important;
+    color: white !important;
+}
+
+.rating-avg {
+    background: #ff9800 !important;
+    color: white !important;
+}
+
+.rating-low {
+    background: #f44336 !important;
+    color: white !important;
+}
+
+/* Jersey favorites display - FIXED spacing */
+.jersey-favorites {
+    color: #b0b0b0;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+.jersey-favorite-list {
+    display: inline-flex;
+    gap: 0.3rem; /* FIXED: Add spacing between numbers */
+    flex-wrap: wrap;
+}
+
+.jersey-favorite-number {
+    background: #333;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-weight: bold;
+    color: #00bcd4;
+}
+
+/* Recommendation badges */
+.camp-rec-badge {
+    padding: 0.3rem 0.6rem !important;
+    border-radius: 4px !important;
+    font-size: 0.7rem !important;
+    font-weight: bold !important;
+    margin-top: 0.5rem !important;
+    display: block !important;
+}
+
+.rec-strong-a {
+    background: rgba(76, 175, 80, 0.2) !important;
+    color: #4caf50 !important;
+    border: 1px solid #4caf50 !important;
+}
+
+.rec-a {
+    background: rgba(76, 175, 80, 0.1) !important;
+    color: #81c784 !important;
+    border: 1px solid #81c784 !important;
+}
+
+.rec-b {
+    background: rgba(33, 150, 243, 0.1) !important;
+    color: #64b5f6 !important;
+    border: 1px solid #64b5f6 !important;
+}
+
+.rec-neutral {
+    background: rgba(255, 152, 0, 0.1) !important;
+    color: #ffb74d !important;
+    border: 1px solid #ffb74d !important;
+}
+
+/* Assignment buttons */
+.camp-player-actions {
+    margin-top: 0.5rem !important;
+    display: flex !important;
+    gap: 0.4rem !important;
+    justify-content: center !important;
+}
+
+.btn-assign {
+    flex: 1 !important;
+    padding: 0.35rem 0.5rem !important;
+    border: none !important;
+    border-radius: 4px !important;
+    font-size: 0.75rem !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    transition: all 0.2s !important;
+}
+
+.btn-assign-a {
+    background: #4caf50 !important;
+    color: white !important;
+}
+
+.btn-assign-a:hover {
+    background: #45a049 !important;
+}
+
+.btn-assign-b {
+    background: #2196F3 !important;
+    color: white !important;
+}
+
+.btn-assign-b:hover {
+    background: #1976D2 !important;
+}
+
+.btn-assign-unassign {
+    background: #666 !important;
+    color: white !important;
+}
+
+.btn-assign-unassign:hover {
+    background: #555 !important;
+}
+
+/* Daily Report */
+.daily-report {
+    background: #2a2a2a;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    color: #ffffff;
+    border: 1px solid #444;
+}
+
+.daily-report h3 {
+    color: #00bcd4;
+    margin-top: 0;
+}
+
+.report-summary {
+    color: #ffffff;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.report-categories {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.report-categories > div {
+    padding: 1rem;
+    border-radius: 6px;
+}
+
+.report-categories h4 {
+    margin-top: 0;
     margin-bottom: 0.75rem;
 }
 
-.attribute-bar-label {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.25rem;
-    font-size: 0.9rem;
+/* Exhibition Game Report */
+.exhibition-report {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(33, 150, 243, 0.2));
+    border: 2px solid #00bcd4;
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 2rem 0;
 }
 
-.attribute-bar-bg {
-    background: #e5e7eb;
-    height: 8px;
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.attribute-bar-fill {
-    height: 100%;
-    transition: width 0.3s ease;
-}
-
-.attribute-bar-fill.high {
-    background: #22c55e;
-}
-
-.attribute-bar-fill.medium {
-    background: #3b82f6;
-}
-
-.attribute-bar-fill.low {
-    background: #f59e0b;
-}
-
-/* Badge Styles */
-.badge {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.875rem;
-    font-weight: 600;
-}
-
-.badge-primary {
-    background: var(--team-primary);
-    color: white;
-}
-
-.badge-secondary {
-    background: #e5e7eb;
-    color: #1e293b;
-}
-
-.badge-success {
-    background: #22c55e;
-    color: white;
-}
-
-.badge-warning {
-    background: #f59e0b;
-    color: white;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .grid-4 {
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    }
-    
-    .camp-alert-branded h2 {
-        font-size: 1.5rem;
-    }
-    
-    .camp-alert-branded p {
-        font-size: 0.95rem;
-    }
-    
-    #player-modal > div {
-        width: 95% !important;
-        max-height: 85vh !important;
-    }
-}
-
-/* Utility Classes */
-.text-center {
+.exhibition-report h2 {
+    color: #00bcd4;
     text-align: center;
+    margin-top: 0;
 }
 
-.mt-1 { margin-top: 0.25rem; }
-.mt-2 { margin-top: 0.5rem; }
-.mt-3 { margin-top: 1rem; }
-.mt-4 { margin-top: 1.5rem; }
-
-.mb-1 { margin-bottom: 0.25rem; }
-.mb-2 { margin-bottom: 0.5rem; }
-.mb-3 { margin-bottom: 1rem; }
-.mb-4 { margin-bottom: 1.5rem; }
-
-.p-1 { padding: 0.25rem; }
-.p-2 { padding: 0.5rem; }
-.p-3 { padding: 1rem; }
-.p-4 { padding: 1.5rem; }
-
-.flex {
-    display: flex;
+.exhibition-report h3 {
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 2rem;
 }
 
-.flex-col {
-    flex-direction: column;
+/* Training Camp Closed State */
+.training-camp-closed {
+    text-align: center;
+    padding: 3rem;
+    background: #2a2a2a;
+    border-radius: 8px;
+    border: 1px solid #444;
 }
 
-.gap-1 { gap: 0.25rem; }
-.gap-2 { gap: 0.5rem; }
-.gap-3 { gap: 1rem; }
-.gap-4 { gap: 1.5rem; }
-
-.justify-center {
-    justify-content: center;
+.training-camp-closed h2 {
+    color: #00bcd4;
 }
 
-.justify-between {
-    justify-content: space-between;
+.training-camp-closed p {
+    color: #ffffff;
+    font-size: 1.1rem;
+    margin: 1rem 0;
 }
 
-.items-center {
-    align-items: center;
+/* Responsive adjustments */
+@media (max-width: 1400px) {
+    .camp-team-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
 }
 
-.font-bold {
-    font-weight: 700;
+@media (max-width: 1200px) {
+    .camp-teams-row {
+        flex-direction: column !important;
+    }
+    
+    .camp-team-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
 }
 
-.text-sm {
-    font-size: 0.875rem;
+@media (max-width: 900px) {
+    .camp-team-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
 }
 
-.text-lg {
-    font-size: 1.125rem;
+@media (max-width: 768px) {
+    .camp-team-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    
+    .camp-player-card {
+        height: 170px !important;
+        min-height: 170px !important;
+        max-height: 170px !important;
+    }
+    
+    .report-categories {
+        grid-template-columns: 1fr;
+    }
+    
+    .camp-controls {
+        flex-direction: column;
+    }
+    
+    .camp-stats {
+        flex-direction: column;
+    }
 }
 
-.text-xl {
-    font-size: 1.25rem;
+@media (max-width: 480px) {
+    .camp-team-grid {
+        grid-template-columns: 1fr !important;
+    }
 }

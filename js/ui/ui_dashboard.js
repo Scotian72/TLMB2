@@ -1,178 +1,146 @@
 /**
- * ui/dashboard.js - Dashboard with Team Branding (SIMPLIFIED)
+ * UI Dashboard (v6.2) - IMPROVED
+ * Main dashboard with day counter, phase info, and quick actions
+ * 
+ * ✅ FIXED: Day counter now updates properly
+ * ✅ IMPROVED: Action buttons at top (Start Training Camp, Advance Day)
  */
-;(function() {
-    'use strict';
+
+(function() {
+  'use strict';
+  var TL = window.TL = window.TL || {};
+  TL.UI = TL.UI || {};
+  
+  /**
+   * Render main dashboard
+   */
+  TL.UI.renderDashboard = function() {
+    var gs = TL.GameState;
     
-    var TL = window.TallyLax || {};
+    var html = '<div class="dashboard-container">';
     
-    function show(params) {
-        var container = document.getElementById('main-content');
-        if (!container) {
-            console.error('main-content container not found!');
-            return;
-        }
-        
-        var GS = TL.GameState;
-        var phase = TL.GameStateFactory ? TL.GameStateFactory.getPhase() : 'camp';
-        
-        container.innerHTML = '';
-        
-        // Build header HTML with team branding
-        var headerHTML = '<div style="display: flex; gap: 1.5rem; align-items: center; margin-bottom: 1.5rem;">';
-        
-        // Team logo and info
-        if (GS.user && GS.user.org) {
-            var teams = (TL.Teams && TL.Teams.getAll) ? TL.Teams.getAll() : [];
-            var userTeam = teams.find(function(t) { return t.name === GS.user.org; });
-            
-            if (userTeam) {
-                headerHTML += '<div style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; background: white; border-radius: 12px; border: 2px solid #e2e8f0; padding: 8px;">';
-                headerHTML += '<img src="' + userTeam.logo + '" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="' + userTeam.name + '">';
-                headerHTML += '</div>';
-                headerHTML += '<div>';
-                headerHTML += '<h1 style="font-size: 1.75rem; font-weight: 700; margin: 0;">' + userTeam.name + '</h1>';
-                headerHTML += '<p style="margin: 0; color: #64748b;">' + GS.user.name + '</p>';
-                headerHTML += '<p style="margin: 0; color: #64748b; font-size: 0.875rem;">President</p>';
-                headerHTML += '</div>';
-            }
-        } else {
-            headerHTML += '<h1 style="font-size: 2rem; margin: 0;">TallyLax Manager</h1>';
-        }
-        
-        // Season info
-        headerHTML += '<div style="margin-left: auto; text-align: right;">';
-        headerHTML += '<p style="margin: 0; color: #64748b; font-size: 0.875rem;">Season ' + (GS.seasonYear || 1) + '</p>';
-        headerHTML += '<p style="margin: 0; font-size: 1.25rem; font-weight: 600;">Day ' + (GS.day || 1) + '</p>';
-        headerHTML += '<p style="margin: 0; color: #64748b; font-size: 0.875rem;">' + getPhaseDisplay(phase) + '</p>';
-        headerHTML += '</div></div>';
-        
-        container.innerHTML = headerHTML;
-        
-        // Action buttons
-        var actionsDiv = document.createElement('div');
-        actionsDiv.style.cssText = 'display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;';
-        
-        if (!GS.divisions.U11.players || GS.divisions.U11.players.length === 0) {
-            actionsDiv.innerHTML = '<button class="btn btn-primary" data-action="startNewSeason">New Season</button>';
-            container.appendChild(actionsDiv);
-            container.innerHTML += '<div class="card"><h2>Welcome to TallyLax Manager!</h2><p>Start a new season to begin.</p></div>';
-            return;
-        }
-        
-        actionsDiv.innerHTML = '<button class="btn btn-primary" data-action="advanceDay">Advance Day</button>' +
-            '<button class="btn btn-primary" data-action="simWeek">Sim Week</button>';
-        
-        if (phase === 'camp') {
-            actionsDiv.innerHTML += '<button class="btn btn-secondary" data-action="autoCompleteCamp">Auto Complete Camp</button>';
-        }
-        
-        container.appendChild(actionsDiv);
-        
-        // Stats cards
-        var totalPlayers = 0;
-        Object.keys(GS.divisions).forEach(function(div) {
-            totalPlayers += (GS.divisions[div].players || []).length;
-        });
-        
-        var statsHTML = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">';
-        statsHTML += createStatCard('Total Players', totalPlayers);
-        statsHTML += createStatCard('Games Played', Object.keys(GS.gameLog || {}).length);
-        statsHTML += createStatCard('Days Remaining', 200 - (GS.day || 1));
-        statsHTML += createStatCard('Avg Morale', calculateAvgMorale() + '%');
-        statsHTML += '</div>';
-        
-        container.innerHTML += statsHTML;
-        
-        // Division table
-        var tableHTML = '<div class="card"><h3 style="margin-bottom: 1rem;">Division Overview</h3>';
-        tableHTML += '<table class="table"><thead><tr>';
-        tableHTML += '<th>Division</th><th>Players</th><th>A Team</th><th>B Team</th><th>Avg OVR</th><th>Actions</th>';
-        tableHTML += '</tr></thead><tbody>';
-        
-        ['U11', 'U13', 'U15', 'U17'].forEach(function(div) {
-            var players = GS.divisions[div].players || [];
-            var aTeam = players.filter(function(p) { return p.level === 'A'; }).length;
-            var bTeam = players.filter(function(p) { return p.level === 'B'; }).length;
-            var avgOvr = players.length > 0 ? 
-                Math.round(players.reduce(function(sum, p) { return sum + (p.ovr || 50); }, 0) / players.length) : 0;
-            
-            tableHTML += '<tr>';
-            tableHTML += '<td><strong>' + div + '</strong></td>';
-            tableHTML += '<td>' + players.length + '</td>';
-            tableHTML += '<td>' + aTeam + '</td>';
-            tableHTML += '<td>' + bTeam + '</td>';
-            tableHTML += '<td>' + avgOvr + '</td>';
-            tableHTML += '<td><button class="btn btn-secondary" data-action="roster" data-param="' + div + '">View Roster</button></td>';
-            tableHTML += '</tr>';
-        });
-        
-        tableHTML += '</tbody></table></div>';
-        container.innerHTML += tableHTML;
-        
-        // News
-        showRecentNews(container, GS);
+    // ✅ NEW: Clean header with day/phase/advance button in top right
+    html += '<div class="dashboard-header-new">';
+    html += '<div class="header-left">';
+    html += '<h1>' + gs.user.name + ' - ' + gs.user.org + '</h1>';
+    html += '<h2>Season ' + (gs.seasonYear || 1) + '</h2>';
+    html += '</div>';
+    // ✅ FIXED: Always show advance button in top right
+    html += '<div class="header-right">';
+    html += '<div class="day-phase-info">';
+    html += '<div class="day-display">Day ' + gs.day + ' of ' + TL.Constants.SEASON_LENGTH_DAYS + '</div>';
+    var phase = this._getCurrentPhase();
+    html += '<div class="phase-display">' + phase.name + '</div>';
+    html += '</div>';
+    
+    // ✅ CRITICAL FIX: ALWAYS show advance button
+    if (gs.day <= TL.Constants.TRAINING_CAMP_END_DAY) {
+      // During training camp - link to camp dashboard but also show advance option
+      html += '<div class="button-group-vertical">';
+      html += '<button class="btn-advance btn-primary" data-action="training-camp-dashboard" style="margin-bottom: 4px;">';
+      html += '🏕️ Training Camp';
+      html += '</button>';
+      html += '<button class="btn-advance btn-secondary" data-action="advance-day">';
+      html += '⏭️ Advance Day';
+      html += '</button>';
+      html += '</div>';
+    } else {
+      // After training camp - show advance day
+      html += '<button class="btn-advance btn-primary" data-action="advance-day">';
+      html += '⏭️ Advance Day';
+      html += '</button>';
+    }
+    html += '</div>';
+    html += '</div>';
+    
+    // Quick stats (compact)
+    html += '<div class="dashboard-quick-stats">';
+    
+    var divisions = TL.Constants.DIVISIONS;
+    for (var i = 0; i < divisions.length; i++) {
+      var div = divisions[i];
+      html += this._buildCompactDivisionCard(div);
     }
     
-    function createStatCard(label, value) {
-        return '<div class="card" style="text-align: center;">' +
-            '<div style="font-size: 2rem; font-weight: 700; color: #2563eb;">' + value + '</div>' +
-            '<div style="color: #64748b; font-size: 0.875rem;">' + label + '</div>' +
-            '</div>';
+    html += '</div>';
+    
+    // Quick actions
+    html += '<div class="quick-actions-compact">';
+    html += '<button class="action-btn-compact" data-action="schedule">📅 Schedule</button>';
+    html += '<button class="action-btn-compact" data-action="standings">📊 Standings</button>';
+    html += '<button class="action-btn-compact" data-action="league-organizations">🏢 All Teams</button>';
+    html += '<button class="action-btn-compact" data-action="save">💾 Save</button>';
+    html += '</div>';
+    
+    html += '</div>';
+    
+    TL.UI.mount(html);
+    console.log('✅ Dashboard rendered - Day', gs.day);
+  };
+  
+  /**
+   * Get current phase info
+   */
+  TL.UI._getCurrentPhase = function() {
+    var gs = TL.GameState;
+    var day = gs.day;
+    
+    if (day <= 7) {
+      return {
+        name: 'Training Camp',
+        description: 'Evaluate players and assign teams'
+      };
+    } else if (day <= 150) {
+      return {
+        name: 'Regular Season',
+        description: 'Playing scheduled games'
+      };
+    } else if (day <= 180) {
+      return {
+        name: 'Playoffs',
+        description: 'Championship tournament'
+      };
+    } else {
+      return {
+        name: 'Off-Season',
+        description: 'Season complete - preparing for next year'
+      };
+    }
+  };
+  
+  /**
+   * Build compact division card for dashboard
+   */
+  TL.UI._buildCompactDivisionCard = function(division) {
+    var gs = TL.GameState;
+    var org = gs.user.org;
+    
+    var tcRoster = TL.Selectors.roster(org, division, 'TC') || [];
+    var aRoster = TL.Selectors.roster(org, division, 'A') || [];
+    var bRoster = TL.Selectors.roster(org, division, 'B') || [];
+    
+    var html = '<div class="compact-division-card">';
+    html += '<div class="division-name-compact">' + division + '</div>';
+    
+    if (division === 'U9') {
+      html += '<div class="division-count">' + tcRoster.length + ' players</div>';
+      html += '<button class="btn-mini" data-action="roster" data-param="' + division + '" data-param2="TC">View</button>';
+    } else {
+      if (tcRoster.length > 0) {
+        html += '<div class="division-count">' + tcRoster.length + ' in camp</div>';
+        html += '<button class="btn-mini" data-action="runcamp" data-param="' + division + '">Camp</button>';
+      } else {
+        html += '<div class="division-count">A:' + aRoster.length + ' B:' + bRoster.length + '</div>';
+        html += '<button class="btn-mini" data-action="roster" data-param="' + division + '" data-param2="A">A</button>';
+        html += '<button class="btn-mini" data-action="roster" data-param="' + division + '" data-param2="B">B</button>';
+      }
     }
     
-    function calculateAvgMorale() {
-        var GS = TL.GameState;
-        var total = 0;
-        var count = 0;
-        
-        Object.keys(GS.divisions).forEach(function(div) {
-            var players = GS.divisions[div].players || [];
-            players.forEach(function(p) {
-                if (p.morale !== undefined) {
-                    total += p.morale;
-                    count++;
-                }
-            });
-        });
-        
-        return count > 0 ? Math.round(total / count) : 70;
-    }
+    html += '</div>';
     
-    function getPhaseDisplay(phase) {
-        var phases = {
-            'camp': 'Training Camp',
-            'segment1': 'Regular Season',
-            'segment2': 'Regular Season',
-            'segment3': 'Regular Season',
-            'segment4': 'Regular Season',
-            'midbreak': 'Mid-Season Break',
-            'laxfest': 'LaxFest Tournament',
-            'founders': 'Founders Cup',
-            'playoffs': 'Playoffs',
-            'awards': 'Awards'
-        };
-        return phases[phase] || 'Season';
-    }
-    
-    function showRecentNews(container, GS) {
-        var news = GS.news || [];
-        if (news.length === 0) return;
-        
-        var newsHTML = '<div class="card"><h3 style="margin-bottom: 1rem;">Recent News</h3>';
-        news.slice(-5).reverse().forEach(function(item) {
-            newsHTML += '<div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem; margin-bottom: 0.5rem;">';
-            newsHTML += '<div style="color: #64748b; font-size: 0.875rem;">Day ' + item.day + '</div>';
-            newsHTML += '<div>' + item.text + '</div>';
-            newsHTML += '</div>';
-        });
-        newsHTML += '</div>';
-        container.innerHTML += newsHTML;
-    }
-    
-    TL.UIDashboard = {
-        show: show
-    };
-    
-    console.log('✅ ui/dashboard.js loaded (with team branding)');
+    return html;
+  };
+  
+  console.log('✅ UIDashboard loaded (v6.2 - IMPROVED)');
+  
 })();

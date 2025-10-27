@@ -1,312 +1,239 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TallyLax Manager 🥍 - Youth Box Lacrosse Simulator</title>
-    <style>
-        /* CSS Variables for theming */
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1e40af;
-            --secondary: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --text: #0f172a;
-            --text-light: #64748b;
-            --bg: #ffffff;
-            --bg-secondary: #f8fafc;
-            --border: #e2e8f0;
-            --shadow: 0 1px 3px 0 rgba(0,0,0,0.1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            color: var(--text);
-            background: var(--bg-secondary);
-            line-height: 1.6;
-        }
-
-        /* Header */
-        .header {
-            background: var(--bg);
-            border-bottom: 1px solid var(--border);
-            padding: 1rem 1.5rem;
-            box-shadow: var(--shadow);
-        }
-
-        .header-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--text);
-        }
-
-        .logo-icon {
-            font-size: 1.5rem;
-        }
-
-        .day-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: var(--primary);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 1rem;
-            font-weight: 600;
-        }
-
-        /* Navigation */
-        .nav {
-            background: var(--bg);
-            border-bottom: 1px solid var(--border);
-            padding: 0 1.5rem;
-            overflow-x: auto;
-        }
-
-        .nav-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            gap: 0.5rem;
-            min-height: 48px;
-            align-items: center;
-        }
-
-        .nav-item {
-            padding: 0.5rem 1rem;
-            background: none;
-            border: none;
-            color: var(--text-light);
-            cursor: pointer;
-            font-size: 0.875rem;
-            font-weight: 500;
-            border-radius: 0.5rem;
-            white-space: nowrap;
-            transition: all 0.2s;
-        }
-
-        .nav-item:hover {
-            background: var(--bg-secondary);
-            color: var(--text);
-        }
-
-        .nav-item.active {
-            background: var(--primary);
-            color: white;
-        }
-
-        /* Main content */
-        .main {
-            max-width: 1400px;
-            margin: 2rem auto;
-            padding: 0 1.5rem;
-            min-height: calc(100vh - 200px);
-        }
-
-        #app-content {
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Cards */
-        .card {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            box-shadow: var(--shadow);
-        }
-
-        .card-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--text);
-        }
-
-        /* Buttons */
-        .btn {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 0.5rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 0.875rem;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-        }
-
-        .btn-secondary {
-            background: var(--bg-secondary);
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
-
-        .btn-secondary:hover {
-            background: var(--border);
-        }
-
-        /* Tables */
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .table th {
-            text-align: left;
-            padding: 0.75rem;
-            background: var(--bg-secondary);
-            color: var(--text);
-            font-weight: 600;
-            font-size: 0.875rem;
-            border-bottom: 2px solid var(--border);
-        }
-
-        .table td {
-            padding: 0.75rem;
-            border-bottom: 1px solid var(--border);
-            font-size: 0.875rem;
-        }
-
-        .table tr:hover {
-            background: var(--bg-secondary);
-        }
-
-        /* Utility classes */
-        .flex { display: flex; }
-        .flex-col { flex-direction: column; }
-        .gap-1 { gap: 0.5rem; }
-        .gap-2 { gap: 1rem; }
-        .gap-3 { gap: 1.5rem; }
-        .mb-1 { margin-bottom: 0.5rem; }
-        .mb-2 { margin-bottom: 1rem; }
-        .mb-3 { margin-bottom: 1.5rem; }
-        .text-sm { font-size: 0.875rem; }
-        .text-light { color: var(--text-light); }
-        .font-bold { font-weight: 600; }
-
-        /* Loading state */
-        .loading {
-            text-align: center;
-            padding: 3rem;
-            color: var(--text-light);
-        }
-
-        .spinner {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            border: 4px solid var(--border);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="TallyLax - Youth Box Lacrosse Organization Manager">
+  <title>TallyLax v6.2 - FIXED</title>
+  <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-content">
-            <div class="logo">
-                <span class="logo-icon">🥍</span>
-                <span>TallyLax Manager</span>
-            </div>
-            <div class="day-chip" id="day-chip">
-                <span>📅</span>
-                <span>Day <span id="current-day">1</span> • Year <span id="current-year">1</span></span>
-            </div>
+  <!-- Banner for notifications -->
+  <div id="banner" class="banner"></div>
+  
+  <!-- Sidebar Navigation -->
+  <nav id="sidebar" class="sidebar hidden">
+    <div class="sidebar-header">
+      <img src="assets/logos/TLM_256.webp" alt="TallyLax" class="sidebar-logo">
+      <h3 class="sidebar-title">TallyLax</h3>
+    </div>
+    
+    <div class="sidebar-content">
+      <!-- Main Section (Dropdown) -->
+      <div class="nav-section">
+        <div class="nav-dropdown" data-dropdown="main">
+          <div class="nav-dropdown-header">
+            <h4>Main</h4>
+            <span class="dropdown-icon">▼</span>
+          </div>
+          <div class="nav-dropdown-content hidden">
+            <button class="nav-button" data-action="dashboard">Dashboard</button>
+            <button class="nav-button" data-action="organization">My Organization</button>
+            <button class="nav-button" data-action="league-organizations">All Teams</button>
+            <button class="nav-button" data-action="training-camp-dashboard">Training Camp</button>
+          </div>
         </div>
-    </header>
-
-    <!-- Navigation -->
-    <nav class="nav">
-        <div class="nav-content" id="main-nav">
-            <button class="nav-item active" data-action="dashboard">Dashboard</button>
-            <button class="nav-item" data-action="roster" data-param="U11">U11</button>
-            <button class="nav-item" data-action="roster" data-param="U13">U13</button>
-            <button class="nav-item" data-action="roster" data-param="U15">U15</button>
-            <button class="nav-item" data-action="roster" data-param="U17">U17</button>
-            <button class="nav-item" data-action="schedule">Schedule</button>
-            <button class="nav-item" data-action="standings">Standings</button>
-            <button class="nav-item" data-action="training">Training</button>
-            <button class="nav-item" data-action="save">Save/Load</button>
+      </div>
+      
+      <!-- Actions Section (Dropdown) -->
+      <div class="nav-section">
+        <div class="nav-dropdown" data-dropdown="actions">
+          <div class="nav-dropdown-header">
+            <h4>Actions</h4>
+            <span class="dropdown-icon">▼</span>
+          </div>
+          <div class="nav-dropdown-content hidden">
+            <button class="nav-button" data-action="schedule">Schedule</button>
+            <button class="nav-button" data-action="standings">Standings</button>
+            <button class="nav-button" data-action="save">Save Game</button>
+            <button class="nav-button" data-action="load">Load Game</button>
+          </div>
         </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="main">
-        <div id="app-content"><div id="root"></div>
-            <div class="loading">
-                <div class="spinner"></div>
-                <p class="mt-2">Loading TallyLax Manager...</p>
+      </div>
+      
+      <!-- Division Selection -->
+      <div class="nav-section">
+        <h4>Divisions</h4>
+        <div class="division-list">
+          <!-- U9 - Special case, Training Camp only -->
+          <div class="division-item" data-division="U9">
+            <div class="division-header">
+              <span class="division-name">U9</span>
+              <span class="division-ages">(Ages 7-8)</span>
+              <span class="expand-icon">▼</span>
             </div>
+            <div class="division-teams hidden">
+              <button class="team-button complete-roster-btn" data-action="roster" data-param="U9" data-param2="TC">📋 Complete Roster</button>
+              <button class="team-button" data-action="runcamp" data-param="U9">🏕️ Training Camp</button>
+            </div>
+          </div>
+          
+          <div class="division-item" data-division="U11">
+            <div class="division-header">
+              <span class="division-name">U11</span>
+              <span class="division-ages">(Ages 9-10)</span>
+              <span class="expand-icon">▼</span>
+            </div>
+            <div class="division-teams hidden">
+              <button class="team-button complete-roster-btn" data-action="roster" data-param="U11" data-param2="both">📋 Complete Roster</button>
+              <button class="team-button" data-action="roster" data-param="U11" data-param2="A">Team A</button>
+              <button class="team-button" data-action="roster" data-param="U11" data-param2="B">Team B</button>
+              <button class="team-button" data-action="runcamp" data-param="U11">🏕️ Training Camp</button>
+            </div>
+          </div>
+          
+          <div class="division-item" data-division="U13">
+            <div class="division-header">
+              <span class="division-name">U13</span>
+              <span class="division-ages">(Ages 11-12)</span>
+              <span class="expand-icon">▼</span>
+            </div>
+            <div class="division-teams hidden">
+              <button class="team-button complete-roster-btn" data-action="roster" data-param="U13" data-param2="both">📋 Complete Roster</button>
+              <button class="team-button" data-action="roster" data-param="U13" data-param2="A">Team A</button>
+              <button class="team-button" data-action="roster" data-param="U13" data-param2="B">Team B</button>
+              <button class="team-button" data-action="runcamp" data-param="U13">🏕️ Training Camp</button>
+            </div>
+          </div>
+          
+          <div class="division-item" data-division="U15">
+            <div class="division-header">
+              <span class="division-name">U15</span>
+              <span class="division-ages">(Ages 13-14)</span>
+              <span class="expand-icon">▼</span>
+            </div>
+            <div class="division-teams hidden">
+              <button class="team-button complete-roster-btn" data-action="roster" data-param="U15" data-param2="both">📋 Complete Roster</button>
+              <button class="team-button" data-action="roster" data-param="U15" data-param2="A">Team A</button>
+              <button class="team-button" data-action="roster" data-param="U15" data-param2="B">Team B</button>
+              <button class="team-button" data-action="runcamp" data-param="U15">🏕️ Training Camp</button>
+            </div>
+          </div>
+          
+          <div class="division-item" data-division="U17">
+            <div class="division-header">
+              <span class="division-name">U17</span>
+              <span class="division-ages">(Ages 15-16)</span>
+              <span class="expand-icon">▼</span>
+            </div>
+            <div class="division-teams hidden">
+              <button class="team-button complete-roster-btn" data-action="roster" data-param="U17" data-param2="both">📋 Complete Roster</button>
+              <button class="team-button" data-action="roster" data-param="U17" data-param2="A">Team A</button>
+              <button class="team-button" data-action="roster" data-param="U17" data-param2="B">Team B</button>
+              <button class="team-button" data-action="runcamp" data-param="U17">🏕️ Training Camp</button>
+            </div>
+          </div>
         </div>
+      </div>
+    </div>
+  </nav>
+  
+  <!-- Main Content Wrapper -->
+  <div id="content-wrapper" class="content-wrapper">
+    <main id="main-content">
+      <div class="panel">
+        <p>Loading TallyLax v6.2 (COMPLETELY FIXED)...</p>
+      </div>
     </main>
+  </div>
 
-    <!-- Script Load Order (Critical!) -->
-    <!-- Core -->
-    <script src="js/core/constants.js?v=3"></script>
-    <script src="js/core/game_state.js?v=3"></script>
-    <script src="js/core/selectors.js?v=3"></script>
-    <script src="js/core/rng.js?v=3"></script>
-    <script src="js/core/keys.js?v=3"></script>
+  <!-- ===== CRITICAL: Script Loading Order ===== -->
+  <!-- Core modules (load first) -->
+  <script src="js/core/constants.js"></script>
+  <script src="js/core/game_state.js"></script>
+  <script src="js/core/selectors.js"></script>
+  <script src="js/core/rng.js"></script>
+  <script src="js/core/keys.js"></script>
+  
+  <!-- Data modules -->
+  <script src="js/data/teams.js"></script>
+  
+  <!-- System modules -->
+  <script src="js/systems/schedule_system.js"></script>
+  
+  <!-- ✅ NEW: Jersey Manager (load before player generator) -->
+  <script src="js/modules/jersey_manager.js"></script>
+  
+  <!-- Module systems -->
+  <script src="js/modules/player_generator.js"></script>
+  <script src="js/modules/lines_manager.js"></script>
+  <script src="js/modules/season_manager.js"></script>
+  
+  <!-- UI modules -->
+  <script src="
+<script src="js/core/assets.js"></script>
+<script src="js/core/event_bus.js"></script>
+js/ui/ui_helpers.js"></script>
+  <script src="js/ui/ui_setup.js"></script>
+  <script src="js/ui/ui_dashboard.js"></script>
+  <script src="js/ui/ui_roster.js"></script>
+  <script src="js/ui/ui_player_card.js"></script>
+  
+  <!-- ✅ NEW: Player Editor -->
+  <script src="js/ui/ui_player_editor.js"></script>
+  
+  <!-- Training camp UIs -->
+  <script src="js/ui/ui_training_camp.js"></script>
+  
+  <!-- ✅ NEW: Training Camp Dashboard -->
+  <script src="js/ui/ui_training_camp_dashboard.js"></script>
+  
+  <!-- ✅ NEW: Training Camp Scrimmages (v6.2 FIX) -->
+  <script src="js/ui/ui_training_camp_scrimmages.js"></script>
+  
+  <!-- ✅ NEW: Training Camp Evaluations (v6.2 FIX) -->
+  <script src="js/ui/ui_camp_evaluations.js"></script>
+  
+  <script src="js/ui/ui_lines.js"></script>
+  <script src="js/ui/ui_schedule.js"></script>
+  
+  <!-- ✅ NEW: Organization with History -->
+  <script src="js/ui/ui_organization.js"></script>
+  
+  <!-- ✅ NEW: League Organizations (ALL teams) -->
+  <script src="js/ui/ui_league_organizations.js"></script>
+  
+  <!-- Router MUST load LAST -->
+  <script src="js/core/router.js"></script>
+  
+  <!-- Initialize -->
+  <script>
+    // Initialize game state
+    TL.initGameState();
     
-    <!-- Data -->
-    <script src="js/data/names.js?v=3"></script>
-    <script src="js/data/traits.js?v=3"></script>
-    <script src="js/data/teams.js?v=3"></script>
+    // Show setup screen
+    TL.Router.route('setup');
     
-    <!-- Systems -->
-    <!-- Modules -->
-    <script src="js/modules/player_generator.js?v=3"></script>
-    <script src="js/modules/opponent_manager.js?v=3"></script>
-    <script src="js/modules/game_simulator.js?v=3"></script>
-    <script src="js/modules/season_manager.js?v=3"></script>
-    <!-- UI -->
-    <!-- Router - ALWAYS LAST -->
-    <script src="js/router.js?v=3"></script>
-<script src="js/router.js"></script>
-<script src="js/ui/ui_strategies.js"></script>
-<script src="js/ui/ui_training.js"></script>
-<script src="js/modules/persist.js"></script>
-<script src="js/modules/diagnostics.js"></script>
-<script src="js/ui/ui_dev.js"></script>
-<script src="js/ui/dashboard.js"></script>
-<script src="js/data/traits.js"></script>
+    console.log('🎮 TallyLax v6.2 - COMPLETELY FIXED VERSION LOADED');
+    console.log('✅ All critical fixes implemented');
+  </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  try {
+    if (window.TL && TL.Assets && document.querySelector('.sidebar-logo')) {
+      var el = document.querySelector('.sidebar-logo');
+      if (window.devicePixelRatio && devicePixelRatio >= 1.5) {
+        el.src = 'assets/logos/TLM_512.webp';
+      } else {
+        el.src = 'assets/logos/TLM_256.webp';
+      }
+    }
+  } catch (e) {}
+});
+</script>
+
+
+<script src="js/modules/camp_manager.js"></script>
+
+<script src="js/modules/stats.js"></script>
+
+<script src="js/ui/ui_training_camp_results.js"></script>
+
+<script src="js/ui/ui_training_camp_auto.js"></script>
+
+<script src="js/ui/ui_diagnostics_light.js"></script>
+
+<div id="main"></div>
 </body>
 </html>

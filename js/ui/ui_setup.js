@@ -1,1 +1,100 @@
-window.TallyLax=window.TallyLax||{};(function(TL){TL.UISetup={ensure:function(){if(TL.GameState&&TL.GameState.setupDone)return;this.open()},open:function(){var t=TL.TeamList||[];var cards=t.map(function(x){var l='img/logos/'+x.org+'.png';var sw='<div class="swatch" style="background:linear-gradient(90deg,'+(x.colors[0]||'#7aa2ff')+','+(x.colors[1]||'#e9ecff')+')"></div>';return'<div class="card team" data-action="pickOrg" data-param="'+x.org+'">'+sw+'<div class="flex"><img src="'+l+'" style="width:28px;height:28px;border-radius:6px;object-fit:cover"/><div><div><strong>'+x.org+'</strong></div><div class="muted">Founded '+(1980+Math.floor(Math.random()*40))+'</div></div></div></div>'}).join('');var html='<div class="modal" id="setupModal"><div class="sheet"><h2>Welcome to TallyLax</h2><p>Choose your club and create your profile.</p><h3>Choose Organization</h3><div class="grid-cards">'+cards+'</div><div id="setupStep2" class="hidden"><h3>President Details</h3><label>Name</label><input id="presName" class="input" placeholder="Your name"/><label>Season Length</label><select id="seasonLen" class="input"><option value="32">32 GP</option><option value="40" selected>40 GP</option><option value="48">48 GP</option></select><div class="flex" style="margin-top:8px"><button class="btn" data-action="finishSetup">Start Season</button></div></div><div class="flex" style="margin-top:8px"><a class="link" data-action="closeSetup">Skip (defaults)</a></div></div></div>';document.body.insertAdjacentHTML('beforeend',html)}};document.addEventListener('click',function(e){var el=e.target.closest('[data-action]');if(!el)return;var a=el.getAttribute('data-action'),p=el.getAttribute('data-param');if(a==='pickOrg'){TL.GameState.user=TL.GameState.user||{};TL.GameState.user.org=p;document.body.setAttribute('data-team',(p||'').toLowerCase());document.querySelector('#setupStep2').classList.remove('hidden')}else if(a==='finishSetup'){var nm=(document.getElementById('presName')||{}).value||'President';var gp=parseInt((document.getElementById('seasonLen')||{}).value||'40',10);TL.GameState.user.president=nm;TL.GameState.config=TL.GameState.config||{};TL.GameState.config.targetGP=gp;TL.GameState.setupDone=true;var m=document.getElementById('setupModal');if(m)m.remove();TL.SeasonManager.startNewSeason('USER');TL.UIDashboard.show()}else if(a==='closeSetup'){TL.GameState.setupDone=true;var m=document.getElementById('setupModal');if(m)m.remove();TL.SeasonManager.startNewSeason('SKIP');TL.UIDashboard.show()}})})(window.TallyLax);
+(function(){
+  'use strict';
+  var TL = window.TL = window.TL || {};
+  TL.UI = TL.UI || {};
+
+  // Lightweight mount helper
+  TL.UI.mount = function(html){
+    var root = document.getElementById('main-content') || document.getElementById('app') || document.getElementById('panel-main') || document.body;
+    root.innerHTML = html;
+  };
+
+  // Render the Setup screen
+  TL.UI.renderSetup = function(){
+    // Get teams from the correct location
+    var teams = (window.TL && TL.Teams) ? TL.Teams : {};
+    var teamsArray = Object.keys(teams);
+    
+    var currentOrg = (TL.GameState && TL.GameState.user && TL.GameState.user.org) || teamsArray[0] || 'Hawks';
+    var currentName = (TL.GameState && TL.GameState.user && TL.GameState.user.name) || '';
+
+    function teamButton(org, team){
+      var selected = (org === currentOrg) ? ' selected' : '';
+      var logo = (team && team.logo) || 'assets/logos/TLM_256.webp';
+      var name = (team && (team.mascot || team.name || org)) || org;
+      return [
+        '<button class="team-card team-btn'+selected+'" data-action="select-team" data-team="'+org+'">',
+          '<img class="team-logo-small" alt="'+org+'" src="'+logo+'">',
+          '<div class="team-name-small">'+name+'</div>',
+        '</button>'
+      ].join('');
+    }
+
+    var teamsHtml = teamsArray.map(function(org){
+      return teamButton(org, teams[org]);
+    }).join('');
+
+    var headerHtml = [
+      '<header class="tlm-topbar">',
+        '<div class="tlm-left"><img src="assets/logos/TLM_256.webp" alt="TLM" class="tlm-logo-top"></div>',
+        '<h1 class="tlm-title">TallyLax Youth Box Lacrosse Manager</h1>',
+      '</header>'
+    ].join('');
+
+    var pageHtml = [
+      headerHtml,
+      '<section class="screen-select-team">',
+        '<div class="team-side">',
+          '<h1 class="screen-title">Choose Your Organization</h1>',
+          '<div class="team-grid" data-role="team-buttons">', teamsHtml, '</div>',
+        '</div>',
+        '<aside class="signup-panel" id="signup-panel">',
+          '<h2>President Details</h2>',
+          '<label class="field"><span>President Name</span>',
+            '<input type="text" id="president-name" autocomplete="name" placeholder="Your name" value="'+(currentName||'')+'" maxlength="30">',
+          '</label>',
+          '<button class="btn-primary btn-large" id="btn-accept">Accept & Start</button>',
+          '<p class="signup-hint">Org: <span id="orgPreview">'+currentOrg+'</span></p>',
+        '</aside>',
+      '</section>'
+    ].join('');
+
+    TL.UI.mount(pageHtml);
+
+    // Wire team selection
+    var grid = document.querySelector('[data-role="team-buttons"]');
+    if (grid){
+      grid.addEventListener('click', function(e){
+        var btn = e.target.closest('.team-btn');
+        if (!btn) return;
+        var org = btn.getAttribute('data-team');
+        // Update selected state
+        Array.prototype.forEach.call(grid.querySelectorAll('.team-btn.selected'), function(b){ b.classList.remove('selected'); });
+        btn.classList.add('selected');
+        // Update preview
+        var nameEl = document.getElementById('orgPreview');
+        if (nameEl) nameEl.textContent = org;
+        if (TL.Router && TL.Router.route) {
+          TL.Router.route('select-team', org, null);
+        }
+      });
+    }
+
+    // Accept & Start button
+    var accept = document.getElementById('btn-accept');
+    if (accept){
+      accept.addEventListener('click', function(){
+        var org = (document.getElementById('orgPreview')||{}).textContent || currentOrg;
+        var name = (document.getElementById('president-name')||{}).value || '';
+        if (!TL.GameState) TL.GameState = { user: {} };
+        TL.GameState.user.org = org;
+        TL.GameState.user.name = name;
+        if (TL.Router && TL.Router.route) {
+          TL.Router.route('start-game', null, null);
+        }
+      });
+    }
+    
+    console.log('✅ Setup screen rendered with', teamsArray.length, 'teams');
+  };
+})();
