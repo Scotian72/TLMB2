@@ -1,204 +1,79 @@
-/**
- * data/traits.js - Player and Parent Traits System
- * NO modern syntax - var and function keywords only
- */
-;(function() {
+// js/data/traits.js - Player Traits System
+(function() {
     'use strict';
+    window.TallyLax = window.TallyLax || {};
     
-    var TL = window.TallyLax || (window.TallyLax = {});
-    
-    // Trait definitions
-    var PLAYER_TRAITS = {
-        VOCAL_LEADER: {
-            id: 'vocal_leader',
-            name: 'Vocal Leader',
-            description: 'Natural team communicator',
-            effects: { leadership: 3, chemistry: 2 },
-            positive: true
-        },
-        HARD_WORKER: {
-            id: 'hard_worker',
-            name: 'Hard Worker',
-            description: 'Gives maximum effort',
-            effects: { progression: 1.15, morale: 2 },
-            positive: true
-        },
-        CLUTCH: {
-            id: 'clutch',
-            name: 'Clutch Performer',
-            description: 'Performs well under pressure',
-            effects: { consistency: 5 },
-            positive: true
-        },
-        COACHABLE: {
-            id: 'coachable',
-            name: 'Coachable',
-            description: 'Responds well to coaching',
-            effects: { progression: 1.1 },
-            positive: true
-        },
-        TEAM_PLAYER: {
-            id: 'team_player',
-            name: 'Team Player',
-            description: 'Puts team first',
-            effects: { chemistry: 3 },
-            positive: true
-        },
-        LAZY: {
-            id: 'lazy',
-            name: 'Lazy',
-            description: 'Lacks work ethic',
-            effects: { progression: 0.85, morale: -2 },
-            positive: false
-        },
-        SELFISH: {
-            id: 'selfish',
-            name: 'Selfish',
-            description: 'Prioritizes self over team',
-            effects: { chemistry: -3 },
-            positive: false
-        },
-        INJURY_PRONE: {
-            id: 'injury_prone',
-            name: 'Injury Prone',
-            description: 'Gets injured more often',
-            effects: { durability: -5 },
-            positive: false
-        },
-        HOT_HEAD: {
-            id: 'hot_head',
-            name: 'Hot Head',
-            description: 'Takes bad penalties',
-            effects: { discipline: -5 },
-            positive: false
-        }
-    };
-    
-    var PARENT_TRAITS = {
-        SUPPORTIVE: {
-            id: 'supportive',
-            name: 'Supportive',
-            description: 'Very encouraging',
-            effects: { parentMorale: 2 }
-        },
-        DEMANDING: {
-            id: 'demanding',
-            name: 'Demanding',
-            description: 'High expectations',
-            effects: { parentMorale: -1, pressure: 1 }
-        },
-        RELAXED: {
-            id: 'relaxed',
-            name: 'Relaxed',
-            description: 'Easy-going attitude',
-            effects: { parentMorale: 1 }
-        },
-        INVOLVED: {
-            id: 'involved',
-            name: 'Very Involved',
-            description: 'Highly engaged',
-            effects: { parentMorale: 1 }
-        }
-    };
-    
-    function generatePlayerTraits(age, position) {
-        var traits = [];
-        var maxTraits = age >= 15 ? 2 : 1;
-        var traitChance = age >= 15 ? 0.6 : 0.4;
+    var Traits = {
         
-        var allTraits = Object.keys(PLAYER_TRAITS);
-        var positiveTraits = [];
-        var negativeTraits = [];
-        
-        for (var i = 0; i < allTraits.length; i++) {
-            var key = allTraits[i];
-            if (PLAYER_TRAITS[key].positive) {
-                positiveTraits.push(key);
+        // Get all traits for a position
+        getAllTraits: function(position) {
+            if (position === 'Goalie') {
+                return this.goalieTraits;
             } else {
-                negativeTraits.push(key);
+                return this.runnerTraits;
             }
-        }
+        },
         
-        if (TL.RNG && TL.RNG.float(0, 1) < traitChance && positiveTraits.length > 0) {
-            var posIdx = TL.RNG.int(0, positiveTraits.length - 1);
-            traits.push(positiveTraits[posIdx].toLowerCase());
-        }
+        // Get specific trait by name
+        getTrait: function(traitName) {
+            var allTraits = this.runnerTraits.concat(this.goalieTraits);
+            for (var i = 0; i < allTraits.length; i++) {
+                if (allTraits[i].name === traitName) {
+                    return allTraits[i];
+                }
+            }
+            return null;
+        },
         
-        var negChance = age >= 15 ? 0.2 : 0.1;
-        if (traits.length < maxTraits && TL.RNG && TL.RNG.float(0, 1) < negChance && negativeTraits.length > 0) {
-            var negIdx = TL.RNG.int(0, negativeTraits.length - 1);
-            traits.push(negativeTraits[negIdx].toLowerCase());
-        }
+        // Runner traits
+        runnerTraits: [
+            // Positive - Offensive
+            { name: 'Natural Scorer', type: 'positive', archetype: 'offensive', effects: { shooting: 5, offense: 3 }, description: 'Has a knack for finding the net' },
+            { name: 'Playmaker', type: 'positive', archetype: 'offensive', effects: { passing: 5, lacrosseIQ: 3 }, description: 'Sets up teammates brilliantly' },
+            { name: 'Quick Release', type: 'positive', archetype: 'offensive', effects: { shooting: 4, cradling: 2 }, description: 'Gets shots off quickly' },
+            { name: 'Clutch Performer', type: 'positive', archetype: 'offensive', effects: { shooting: 3, leadership: 3 }, description: 'Performs best under pressure' },
+            
+            // Positive - Defensive
+            { name: 'Shutdown Defender', type: 'positive', archetype: 'defensive', effects: { defense: 5, positioning: 3 }, description: 'Locks down opponents' },
+            { name: 'Physical', type: 'positive', archetype: 'defensive', effects: { defense: 4, hustle: 2 }, description: 'Plays tough, physical lacrosse' },
+            { name: 'Maritime Tough', type: 'positive', archetype: 'defensive', effects: { defense: 3, endurance: 3 }, description: 'East Coast grit and determination' },
+            { name: 'Ball Hawk', type: 'positive', archetype: 'defensive', effects: { defense: 3, positioning: 3 }, description: 'Creates turnovers consistently' },
+            
+            // Positive - Balanced
+            { name: 'Two-Way Player', type: 'positive', archetype: 'balanced', effects: { offense: 3, defense: 3 }, description: 'Contributes at both ends' },
+            { name: 'High Lacrosse IQ', type: 'positive', archetype: 'balanced', effects: { lacrosseIQ: 5, positioning: 3 }, description: 'Reads the game exceptionally well' },
+            { name: 'Natural Athlete', type: 'positive', archetype: 'balanced', effects: { speed: 4, endurance: 2 }, description: 'Superior athletic ability' },
+            { name: 'Team Leader', type: 'positive', archetype: 'balanced', effects: { leadership: 5, lacrosseIQ: 2 }, description: 'Natural leader on and off the court' },
+            { name: 'Coachable', type: 'positive', archetype: 'balanced', effects: { lacrosseIQ: 3, positioning: 2 }, description: 'Learns quickly and applies feedback' },
+            { name: 'Motor', type: 'positive', archetype: 'balanced', effects: { hustle: 5, endurance: 3 }, description: 'Never stops working' },
+            { name: 'Quick Feet', type: 'positive', archetype: 'balanced', effects: { speed: 5, positioning: 2 }, description: 'Exceptional foot speed' },
+            
+            // Negative
+            { name: 'Inconsistent', type: 'negative', effects: { lacrosseIQ: -3, positioning: -2 }, description: 'Performance varies game to game' },
+            { name: 'Hot Head', type: 'negative', effects: { leadership: -4, lacrosseIQ: -2 }, description: 'Takes undisciplined penalties' },
+            { name: 'Low Stamina', type: 'negative', effects: { endurance: -5, hustle: -2 }, description: 'Tires quickly during games' },
+            { name: 'Weak Stick', type: 'negative', effects: { cradling: -4, passing: -2 }, description: 'Struggles with stick skills' },
+            { name: 'Soft Hands', type: 'negative', effects: { defense: -4, hustle: -2 }, description: 'Avoids physical play' }
+        ],
         
-        return traits;
-    }
-    
-    function applyTraitEffects(player, traitId) {
-        if (!player || !traitId) return;
-        
-        var trait = PLAYER_TRAITS[traitId.toUpperCase()];
-        if (!trait || !trait.effects) return;
-        
-        if (trait.effects.leadership && player.leadership !== undefined) {
-            player.leadership = Math.max(0, Math.min(100, player.leadership + trait.effects.leadership));
-        }
-        if (trait.effects.chemistry) {
-            player.chemistryBonus = (player.chemistryBonus || 0) + trait.effects.chemistry;
-        }
-        if (trait.effects.consistency && player.consistency !== undefined) {
-            player.consistency = Math.max(0, Math.min(100, player.consistency + trait.effects.consistency));
-        }
-        if (trait.effects.durability && player.durability !== undefined) {
-            player.durability = Math.max(0, Math.min(100, player.durability + trait.effects.durability));
-        }
-        if (trait.effects.discipline && player.discipline !== undefined) {
-            player.discipline = Math.max(0, Math.min(100, player.discipline + trait.effects.discipline));
-        }
-        if (trait.effects.progression) {
-            player.progressionModifier = (player.progressionModifier || 1.0) * trait.effects.progression;
-        }
-        if (trait.effects.morale) {
-            player.morale = Math.max(0, Math.min(100, (player.morale || 70) + trait.effects.morale));
-        }
-    }
-    
-    function generateParentTraits() {
-        var traits = [];
-        var allParentTraits = Object.keys(PARENT_TRAITS);
-        
-        if (TL.RNG && TL.RNG.float(0, 1) < 0.7 && allParentTraits.length > 0) {
-            var idx = TL.RNG.int(0, allParentTraits.length - 1);
-            traits.push(allParentTraits[idx].toLowerCase());
-        }
-        
-        return traits;
-    }
-    
-    function getTraitDefinition(traitId) {
-        if (!traitId) return null;
-        return PLAYER_TRAITS[traitId.toUpperCase()] || PARENT_TRAITS[traitId.toUpperCase()] || null;
-    }
-    
-    function getTraitName(traitId) {
-        var trait = getTraitDefinition(traitId);
-        return trait ? trait.name : traitId;
-    }
-    
-    function isPositiveTrait(traitId) {
-        var trait = getTraitDefinition(traitId);
-        return trait && trait.positive === true;
-    }
-    
-    TL.Traits = {
-        PLAYER_TRAITS: PLAYER_TRAITS,
-        PARENT_TRAITS: PARENT_TRAITS,
-        generatePlayerTraits: generatePlayerTraits,
-        generateParentTraits: generateParentTraits,
-        applyTraitEffects: applyTraitEffects,
-        getTraitDefinition: getTraitDefinition,
-        getTraitName: getTraitName,
-        isPositiveTrait: isPositiveTrait
+        // Goalie traits
+        goalieTraits: [
+            // Positive
+            { name: 'Acrobatic', type: 'positive', effects: { reflexes: 5, highShots: 3 }, description: 'Makes spectacular saves' },
+            { name: 'Calm Under Pressure', type: 'positive', effects: { mentalToughness: 5, positioning: 2 }, description: 'Stays composed in crucial moments' },
+            { name: 'Quick Reflexes', type: 'positive', effects: { reflexes: 5, stickSide: 2 }, description: 'Lightning-fast reactions' },
+            { name: 'Vocal Leader', type: 'positive', effects: { communication: 5, clearing: 2 }, description: 'Commands the defense' },
+            { name: 'Rebound Control', type: 'positive', effects: { reboundControl: 5, positioning: 2 }, description: 'Controls loose balls expertly' },
+            { name: 'Positional Goalie', type: 'positive', effects: { positioning: 5, lowShots: 2 }, description: 'Always in the right spot' },
+            
+            // Negative
+            { name: 'Inconsistent', type: 'negative', effects: { mentalToughness: -4, reflexes: -2 }, description: 'Performance varies widely' },
+            { name: 'Lets In Soft Goals', type: 'negative', effects: { reflexes: -3, positioning: -3 }, description: 'Prone to easy goals' },
+            { name: 'Poor Clearing', type: 'negative', effects: { clearing: -5 }, description: 'Struggles to start offense' },
+            { name: 'Nervous', type: 'negative', effects: { mentalToughness: -5, communication: -2 }, description: 'Gets rattled easily' }
+        ]
     };
     
-    console.log('✅ data/traits.js loaded');
+    window.TallyLax.Traits = Traits;
+    console.log('âœ… Traits loaded successfully');
 })();

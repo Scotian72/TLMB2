@@ -1,0 +1,278 @@
+/**
+ * TallyLax Schedule System (v6.2)
+ * 200-day calendar with 48-game regular season
+ * Contract: A vs A, B vs B matchups; proper phase management
+ */
+
+(function() {
+  'use strict';
+
+  var ScheduleSystem = {
+    
+    // Initialize 200-day calendar
+    initCalendar: function() {
+      var gs = window.TL.GameState;
+      var calendar = {};
+      
+      // Preseason: Days 1-30
+      for (var d = 1; d <= 30; d++) {
+        calendar[d] = { phase: 'preseason', event: null };
+      }
+      
+      // Regular season: Days 31-170 (140 days for 48 games)
+      for (var d2 = 31; d2 <= 170; d2++) {
+        calendar[d2] = { phase: 'regular', event: null };
+      }
+      
+      // Playoffs: Days 171-190
+      for (var d3 = 171; d3 <= 190; d3++) {
+        calendar[d3] = { phase: 'playoffs', event: null };
+      }
+      
+      // Offseason: Days 191-200
+      for (var d4 = 191; d4 <= 200; d4++) {
+        calendar[d4] = { phase: 'offseason', event: null };
+      }
+      
+      gs.calendar = calendar;
+      return calendar;
+    },
+    
+    // Build full 48-game schedule for all divisions
+    buildSchedule: function() {
+      var gs = window.TL.GameState;
+      var divisions = window.TL.Constants.DIVISIONS;
+      var levels = window.TL.Constants.LEVELS;
+      var orgs = gs.orgs;
+      
+      if (!gs.schedule) {
+        gs.schedule = {};
+      }
+      
+      // Build schedule for each division/level
+      for (var i = 0; i < divisions.length; i++) {
+        var div = divisions[i];
+        
+        // Skip U9 - they only have training camp, no regular season games
+        if (div === 'U9') {
+          console.log('Skipping U9 schedule (training camp only)');
+          continue;
+        }
+        
+        for (var j = 0; j < levels.length; j++) {
+          var lvl = levels[j];
+          
+          // Generate 48 games for this division/level
+          this.buildDivisionSchedule(div, lvl, orgs);
+        }
+      }
+      
+      console.log('Schedule built for all divisions');
+      return gs.schedule;
+    },
+    
+    // Build schedule for one division/level
+    buildDivisionSchedule: function(div, lvl, orgs) {
+      var gs = window.TL.GameState;
+      var gamesPerTeam = 48;
+      var totalTeams = orgs.length; // 12 teams
+      var gamesAgainstEach = Math.floor(gamesPerTeam / (totalTeams - 1)); // ~4 games vs each opponent
+      
+      // Regular season days from calendar segments (skip camp, tournaments, playoffs)
+      // Segment 1: Days 8-50 (43 days)
+      // Segment 2: Days 51-80 (30 days)
+      // Segment 3: Days 86-130 (45 days)
+      // Segment 4: Days 136-165 (30 days)
+      // TOTAL: 148 days available for regular season
+      var scheduleDays = [];
+      
+      // Add Segment 1 (Days 8-50)
+      for (var d = 8; d <= 50; d++) {
+        scheduleDays.push(d);
+      }
+      
+      // Add Segment 2 (Days 51-80)
+      for (var d = 51; d <= 80; d++) {
+        scheduleDays.push(d);
+      }
+      
+      // Add Segment 3 (Days 86-130)
+      for (var d = 86; d <= 130; d++) {
+        scheduleDays.push(d);
+      }
+      
+      // Add Segment 4 (Days 136-165)
+      for (var d = 136; d <= 165; d++) {
+        scheduleDays.push(d);
+      }
+      
+      // Shuffle days for variety
+      scheduleDays = window.TL.RNG.shuffle(scheduleDays);
+      
+      var dayIndex = 0;
+      var gamesScheduled = {};
+      var outOfDays = false;
+      
+      // Initialize games scheduled counter
+      for (var i = 0; i < orgs.length; i++) {
+        gamesScheduled[orgs[i]] = 0;
+      }
+      
+      // Build round-robin schedule
+      for (var homeIdx = 0; homeIdx < orgs.length && !outOfDays; homeIdx++) {
+        var homeOrg = orgs[homeIdx];
+        
+        for (var awayIdx = 0; awayIdx < orgs.length && !outOfDays; awayIdx++) {
+          if (homeIdx === awayIdx) continue; // Can't play self
+          
+          var awayOrg = orgs[awayIdx];
+          
+          // Schedule games between these teams
+          for (var g = 0; g < gamesAgainstEach && !outOfDays; g++) {
+            // Check if both teams have room for more games
+            if (gamesScheduled[homeOrg] >= gamesPerTeam || 
+                gamesScheduled[awayOrg] >= gamesPerTeam) {
+              break;
+            }
+            
+            // Find next available day
+            if (dayIndex >= scheduleDays.length) {
+              console.warn('Ran out of schedule days for', div, lvl, '- scheduled', dayIndex, 'games out of', scheduleDays.length, 'available days');
+              outOfDays = true;
+              break;
+            }
+            
+            var gameDay = scheduleDays[dayIndex];
+            dayIndex++;
+            
+            // Create game
+            var game = {
+              id: 'g' + div + lvl + homeOrg + awayOrg + gameDay,
+              division: div,
+              level: lvl,
+              home: homeOrg,
+              away: awayOrg,
+              day: gameDay,
+              played: false,
+              homeScore: 0,
+              awayScore: 0
+            };
+            
+            // Add to schedule
+            if (!gs.schedule[gameDay]) {
+              gs.schedule[gameDay] = [];
+            }
+            gs.schedule[gameDay].push(game);
+            
+            // Increment counters
+            gamesScheduled[homeOrg]++;
+            gamesScheduled[awayOrg]++;
+          }
+        }
+      }
+      
+      // Top up if teams don't have exactly 48 games (only if we have days left)
+      if (!outOfDays) {
+        var attempts = 0;
+        var maxAttempts = 100;
+        
+        while (attempts < maxAttempts && dayIndex < scheduleDays.length) {
+          var allTeamsHave48 = true;
+          
+          for (var org in gamesScheduled) {
+            if (gamesScheduled[org] < gamesPerTeam) {
+              allTeamsHave48 = false;
+              
+              // Find opponent with fewest games
+              var minGames = gamesPerTeam;
+              var opponent = null;
+              
+              for (var opp in gamesScheduled) {
+                if (opp !== org && gamesScheduled[opp] < minGames) {
+                  minGames = gamesScheduled[opp];
+                  opponent = opp;
+                }
+              }
+              
+              if (opponent && dayIndex < scheduleDays.length) {
+                var topUpDay = scheduleDays[dayIndex];
+                dayIndex++;
+                
+                var topUpGame = {
+                  id: 'g' + div + lvl + org + opponent + topUpDay,
+                  division: div,
+                  level: lvl,
+                  home: org,
+                  away: opponent,
+                  day: topUpDay,
+                  played: false,
+                  homeScore: 0,
+                  awayScore: 0
+                };
+                
+                if (!gs.schedule[topUpDay]) {
+                  gs.schedule[topUpDay] = [];
+                }
+                gs.schedule[topUpDay].push(topUpGame);
+                
+                gamesScheduled[org]++;
+                gamesScheduled[opponent]++;
+              }
+            }
+          }
+          
+          if (allTeamsHave48) break;
+          attempts++;
+        }
+      }
+      
+      return true;
+    },
+    
+    // Get games for a specific day
+    getGamesForDay: function(day) {
+      var gs = window.TL.GameState;
+      return gs.schedule[day] || [];
+    },
+    
+    // Get games for a specific team
+    getTeamGames: function(org, div, lvl) {
+      var gs = window.TL.GameState;
+      var teamGames = [];
+      
+      for (var day in gs.schedule) {
+        var games = gs.schedule[day];
+        
+        for (var i = 0; i < games.length; i++) {
+          var game = games[i];
+          
+          if (game.division === div && game.level === lvl &&
+              (game.home === org || game.away === org)) {
+            teamGames.push(game);
+          }
+        }
+      }
+      
+      // Sort by day
+      teamGames.sort(function(a, b) {
+        return a.day - b.day;
+      });
+      
+      return teamGames;
+    },
+    
+    // Initialize full schedule
+    initialize: function() {
+      console.log('Initializing schedule system...');
+      this.initCalendar();
+      this.buildSchedule();
+      console.log('Schedule system initialized');
+      return true;
+    }
+  };
+
+  // Export to global namespace
+  window.TallyLax = window.TallyLax || {};
+  window.TallyLax.ScheduleSystem = ScheduleSystem;
+  window.TL = window.TallyLax; // Alias
+})();
